@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 @Component
 @RequiredArgsConstructor
 public class UserHandler {
-    private UserService userService;
+    private final UserService userService;
 
     public Mono<ServerResponse> getAllUsers(ServerRequest request){
         return ServerResponse
@@ -21,8 +21,9 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> getUserById(ServerRequest request) {
+        String id = request.pathVariable("id");
         return userService
-                .findById(request.pathVariable("userId"))
+                .findById(id)
                 .flatMap(user -> ServerResponse
                         .ok()
                         .contentType(MediaType.APPLICATION_JSON)
@@ -43,7 +44,7 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> updateUserById(ServerRequest request) {
-        String id = request.pathVariable("userId");
+        String id = request.pathVariable("id");
         Mono<User> updatedUser = request.bodyToMono(User.class);
 
         return updatedUser
@@ -55,8 +56,11 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> deleteUserById(ServerRequest request){
-        return userService.deleteUser(request.pathVariable("userId"))
-                .flatMap(u -> ServerResponse.ok().body(u, User.class))
+        String id = request.pathVariable("id");
+        return userService
+                .deleteUser(id)
+                .flatMap(u -> ServerResponse
+                        .ok().body(u, User.class))
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 }

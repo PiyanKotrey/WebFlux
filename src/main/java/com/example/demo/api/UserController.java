@@ -1,10 +1,13 @@
 package com.example.demo.api;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.server.EntityResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -29,23 +32,23 @@ public class UserController {
         return userService.getAllUser();
     }
 
-    @GetMapping("/{userId}")
-    public Mono<ResponseEntity<User>> getUserById(@PathVariable String userId){
-        Mono<User> user = userService.findById(userId);
+    @GetMapping("/{id}")
+    public Mono<ResponseEntity<User>> getUserById(@PathVariable String id){
+        Mono<User> user = userService.findById(id);
         return user.map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{userId}")
-    public Mono<ResponseEntity<User>> updateUserById(@PathVariable String userId, @RequestBody User user){
-        return userService.updateUser(userId,user)
+    @PutMapping("/{id}")
+    public Mono<ResponseEntity<User>> updateUserById(@PathVariable String id, @RequestBody User user){
+        return userService.updateUser(id,user)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.badRequest().build());
     }
 
-    @DeleteMapping("/{userId}")
-    public Mono<ResponseEntity<Void>> deleteUserById(@PathVariable String userId){
-        return userService.deleteUser(userId)
+    @DeleteMapping("/{id}")
+    public Mono<ResponseEntity<Void>> deleteUserById(@PathVariable String id){
+        return userService.deleteUser(id)
                 .map(r -> ResponseEntity.ok().<Void>build())
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
@@ -59,10 +62,22 @@ public class UserController {
         return userService
                 .getAllUser()
                 .flatMap(user -> Flux
-                        .zip(Flux.interval(Duration.ofSeconds(2)),
+                        .zip(Flux.interval(Duration.ofSeconds(3)),
                                 Flux.fromStream(Stream.generate(() -> user))
                         )
                         .map(Tuple2::getT2)
                 );
     }
+
+    //webClient
+    @PostMapping("/postComplex")
+    public Mono<String> postComplex(@RequestBody User user){
+        return userService.postUser(user);
+    }
+    @GetMapping("/getOptionalComplex")
+    public Mono<String> getOp(){
+        return userService.getUserOptional();
+    }
+
+
 }
