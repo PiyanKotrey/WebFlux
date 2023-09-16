@@ -1,4 +1,4 @@
-package com.example.demo.api;
+package com.example.demo.api.users;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

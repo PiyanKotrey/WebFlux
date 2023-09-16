@@ -1,13 +1,10 @@
-package com.example.demo.api;
+package com.example.demo.api.users;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.server.EntityResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -71,12 +68,25 @@ public class UserController {
 
     //webClient
     @PostMapping("/postComplex")
-    public Mono<String> postComplex(@RequestBody User user){
+    public Mono<User> postComplex(@RequestBody User user){
         return userService.postUser(user);
     }
-    @GetMapping("/getOptionalComplex")
-    public Mono<String> getOp(){
-        return userService.getUserOptional();
+//    @GetMapping("/clGetAll")
+//    public Flux<User> clGetAll(){
+//        return userService.clGetAll();
+//    }
+    @GetMapping("{id}/getOptionalComplex")
+    public Mono<User> getUserId(@PathVariable String id){
+        return userService.clGetUserId(id);
+    }
+    @PutMapping("{id}/clUpdate")
+    public Mono<User> clUpdate(@PathVariable String id,
+                               @RequestBody User user){
+        return userService.clUpdateUser(id,user);
+    }
+    @DeleteMapping("{id}/clDelete")
+    public Mono<Void> clDelete(@PathVariable String id){
+        return userService.clDelete(id);
     }
 
 

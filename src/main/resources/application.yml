@@ -2,7 +2,7 @@ spring:
   application:
     name: Demo
   webflux:
-    base-path: /api
+    base-path: /api/v1
   data:
     mongodb:
 #      authentication-database: admin

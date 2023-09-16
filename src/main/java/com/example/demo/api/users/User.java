@@ -1,10 +1,9 @@
-package com.example.demo.api;
+package com.example.demo.api.users;
 
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.lang.annotation.Documented;
 import java.math.BigDecimal;
 @ToString
 @Data

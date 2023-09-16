@@ -1,11 +1,16 @@
-package com.example.demo.api;
+package com.example.demo.api.users;
 
+import com.example.demo.error.Error;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -21,7 +26,9 @@ import java.util.Collections;
 public class UserService {
     private final WebClient webClient;
     @Autowired
-    public UserService(WebClient.Builder webClientBuilder, UserRepository userRepository, ReactiveMongoTemplate reactiveMongoTemplate) {
+    public UserService(WebClient.Builder webClientBuilder,
+                       UserRepository userRepository,
+                       ReactiveMongoTemplate reactiveMongoTemplate) {
         this.webClient = webClientBuilder.baseUrl("http://localhost:8080/api").build();
         this.userRepository = userRepository;
         this.reactiveMongoTemplate = reactiveMongoTemplate;
@@ -29,6 +36,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
+
 
 
     public Mono<User> createUser(User user){
@@ -73,21 +81,50 @@ public class UserService {
     }
 
     //using web client
-    public Mono<String> postUser(User user){
+    public Mono<User> postUser(User user){
         return webClient
                 .post()
                 .uri("/user")
                 .body(Mono.just(user),User.class)
                 .retrieve()
-                .bodyToMono(String.class);
+                .bodyToMono(User.class);
     }
-
-    public Mono<String> getUserOptional(){
+//    public Flux<User> clGetAll(){
+//        return webClient
+//                .get()
+//                .uri("/user")
+//                .retrieve()
+//                .onStatus(httpStatus->!httpStatus.is2xxSuccessful(),
+//                        clientResponse -> handleError((HttpStatus) clientResponse.statusCode()))
+//                .bodyToMono(User.class);
+//    }
+    public Mono<User> clGetUserId(String id){
         return webClient
                 .get()
-                .uri("user/2222")
+                .uri("/user/"+id)
                 .retrieve()
-                .bodyToMono(String.class);
+                .onStatus(HttpStatusCode::is4xxClientError,
+                        clientResponse ->Mono.error(new Error("client Error")) )
+                .onStatus(HttpStatusCode::is5xxServerError,
+                        clientResponse ->Mono.error(new Error("server Error")) )
+                .bodyToMono(User.class);
+    }
+
+    public Mono<User> clUpdateUser(String id,User user){
+        return webClient
+                .put()
+                .uri("/user/"+id)
+                .body(Mono.just(user),User.class)
+                .retrieve()
+                .bodyToMono(User.class);
+
+    }
+    public Mono<Void> clDelete(String id){
+        return webClient
+                .delete()
+                .uri("/user/"+id)
+                .retrieve()
+                .bodyToMono(Void.class);
     }
 
 }
