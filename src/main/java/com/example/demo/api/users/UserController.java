@@ -66,28 +66,7 @@ public class UserController {
                 );
     }
 
-    //webClient
-    @PostMapping("/postComplex")
-    public Mono<User> postComplex(@RequestBody User user){
-        return userService.postUser(user);
-    }
-//    @GetMapping("/clGetAll")
-//    public Flux<User> clGetAll(){
-//        return userService.clGetAll();
-//    }
-    @GetMapping("{id}/getOptionalComplex")
-    public Mono<User> getUserId(@PathVariable String id){
-        return userService.clGetUserId(id);
-    }
-    @PutMapping("{id}/clUpdate")
-    public Mono<User> clUpdate(@PathVariable String id,
-                               @RequestBody User user){
-        return userService.clUpdateUser(id,user);
-    }
-    @DeleteMapping("{id}/clDelete")
-    public Mono<Void> clDelete(@PathVariable String id){
-        return userService.clDelete(id);
-    }
+
 
 
 }
